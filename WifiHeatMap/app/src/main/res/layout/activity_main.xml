@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="mycompany.com.wifiheatmap.MainActivity">
+    tools:context="mycompany.com.wifiheatmap.HeatMap">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -24,21 +24,11 @@
     <include layout="@layout/content_main" />
 
     <TextView
-        android:id="@+id/text"
+        android:id="@+id/stepNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="58dp" />
-
-    <Button
-        android:id="@+id/getWifi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/numSteps"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="90dp"
-        android:text="Get Wifi Strength" />
-
 
 </android.support.design.widget.CoordinatorLayout>

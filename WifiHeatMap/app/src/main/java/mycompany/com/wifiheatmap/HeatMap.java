@@ -19,6 +19,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
 public class HeatMap extends AppCompatActivity implements SensorEventListener{
 
     private SensorManager sensorManager;
@@ -27,12 +32,10 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
     private float[] geoMagnetic;
 
     private float azimuth;
-    private int feet;
-    private int inches;
-    private int height;
-    private double stepLength;
     protected boolean walking;
     protected boolean walkingY;
+    private int threshold;
+    protected Queue queue;
 
     //x and y coordinate of person
     protected int x;
@@ -57,6 +60,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         direction = 0;
         walking = false;
         walkingY = false;
+        threshold = 8;
         //assume user starts in the middle;
         x = 49;
         y = 49;
@@ -65,7 +69,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         angleText = (TextView)findViewById(R.id.angle);
         utilityText = (TextView)findViewById(R.id.utility);
         startButton = (Button)findViewById(R.id.startButton);
-
+        queue = new LinkedList();
 
         timerTask = new TimerTask();
 
@@ -81,6 +85,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                     startButton.setText("Start");
                     walking = false;
                     timerTask.cancel(true);
+                    timerTask = new TimerTask();
                 }
             }
         });
@@ -156,6 +161,20 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         switch(event.sensor.getType()){
             case Sensor.TYPE_ACCELEROMETER:
                 gravity = event.values;
+                float accelY = gravity[1];
+                if(queue.size() > 20) {
+                    queue.remove();
+                    queue.add(accelY);
+                }
+                else {
+                    queue.add(accelY);
+                }
+                utilityText.setText(queue.toString());
+
+                //if(accelY > threshold){
+
+//                utilityText.setText("Y Accelerometer: " + accelY);
+                //}
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 geoMagnetic = event.values;
@@ -247,7 +266,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         }
 
         protected void onProgressUpdate(Void... blah){
-            utilityText.setText("Level: " + wifiStrength);
+            //utilityText.setText("Level: " + wifiStrength);
         }
     }
 }

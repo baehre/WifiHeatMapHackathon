@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -30,19 +31,23 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
     private int inches;
     private int height;
     private double stepLength;
-    private boolean walking;
+    protected boolean walking;
+    protected boolean walkingY;
 
     //x and y coordinate of person
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
+    private int[][] matrix;
 
     //like a clock north is 0. includes non cardinals (i.e. NE)
     private int direction;
 
     private TextView angleText;
+    private TextView utilityText;
     private Button startButton;
-    private Spinner feetSpinner;
-    private Spinner inchesSpinner;
+
+
+    private TimerTask timerTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,41 +56,75 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         //initialize values
         direction = 0;
         walking = false;
+        walkingY = false;
+        //assume user starts in the middle;
+        x = 49;
+        y = 49;
+        matrix = new int[100][100];
 
         angleText = (TextView)findViewById(R.id.angle);
+        utilityText = (TextView)findViewById(R.id.utility);
         startButton = (Button)findViewById(R.id.startButton);
-        feetSpinner = (Spinner)findViewById(R.id.feet);
-        inchesSpinner = (Spinner)findViewById(R.id.inches);
 
-        startButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                if(startButton.getText() == "Start"){
+
+        timerTask = new TimerTask();
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (walking == false) {
+                    initListening();
                     startButton.setText("Stop");
-                    feet = (int)feetSpinner.getSelectedItem();
-                    inches = (int)inchesSpinner.getSelectedItem();
-                    height = feet * 12 + inches;
-                    stepLength = 0.415 * height;
                     walking = true;
-                    startWalk();
-                }
-                else if(startButton.getText() == "Stop"){
+                    timerTask.execute();
+                } else if (walking == true) {
+                    stopListening();
                     startButton.setText("Start");
                     walking = false;
+                    timerTask.cancel(true);
                 }
             }
         });
-        initListening();
+        //initListening();
     }
 
-    private void startWalk(){
-        long last = System.currentTimeMillis();
-        while (walking) {
-            long current = System.currentTimeMillis();
-            if(current-last>=1000){
-                WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-                int wifiStrength = getWifiStrength(wifi);
-                last = current;
-            }
+
+    //update the user in the matrix every second based on direction
+    private void updateLocation(){
+        int prevY = y;
+        int prevX = x;
+        if(direction == 0){
+            y = y-1;
+        }
+        else if(direction == 1){
+            x = x+1;
+            y = y-1;
+        }
+        else if(direction == 2){
+            x = x+1;
+        }
+        else if(direction == 3){
+            x=x+1;
+            y=y+1;
+        }
+        else if(direction == 4){
+            y=y+1;
+        }
+        else if(direction == 5){
+            x = x-1;
+            y=y+1;
+        }
+        else if(direction == 6){
+            x=x-1;
+        }
+        else if(direction == 7){
+            x=x-1;
+            y=y-1;
+        }
+        if(x<0 || x>99){
+            x = prevX;
+        }
+        if(y<0 || y>99){
+            y = prevY;
         }
     }
 
@@ -101,9 +140,14 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
-    private int getWifiStrength(WifiManager wifiManager){
+    private void stopListening(){
+        sensorManager.unregisterListener(this);
+    }
+
+    protected int getWifiStrength(WifiManager wifiManager){
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        int level = wifiInfo.getRssi();
+        int rssi = wifiInfo.getRssi();
+        int level = wifiManager.calculateSignalLevel(rssi, 100);
         return level;
     }
 
@@ -167,10 +211,43 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         else if(tempAzimuth<=337.5 && tempAzimuth>292.5){
             direction = 7;
         }
+        angleText.setText(angleText.getText() + " : DIRECTION: " + direction);
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy)
     {
         //makes the implements happy
+    }
+
+    private class TimerTask extends AsyncTask<Void, Void, Void>{
+
+        private int wifiStrength;
+
+        protected Void doInBackground(Void... eh){
+            startWalk();
+            return null;
+        }
+
+        //user has pressed the start button. they are walking around and ish
+        private void startWalk(){
+            long last = System.currentTimeMillis();
+            while (walking) {
+                long current = System.currentTimeMillis();
+                if(current-last>=1000){
+                    WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+                     wifiStrength = getWifiStrength(wifi);
+                     publishProgress();
+                     updateLocation();
+                     if(matrix[x][y] != 0){
+                        matrix[x][y] = wifiStrength;
+                     }
+                    last = current;
+                }
+            }
+        }
+
+        protected void onProgressUpdate(Void... blah){
+            utilityText.setText("Level: " + wifiStrength);
+        }
     }
 }

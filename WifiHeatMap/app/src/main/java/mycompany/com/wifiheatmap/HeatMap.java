@@ -20,6 +20,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -40,13 +41,16 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
     //x and y coordinate of person
     protected int x;
     protected int y;
+    private float walkBuffer;
     private int[][] matrix;
+
 
     //like a clock north is 0. includes non cardinals (i.e. NE)
     private int direction;
 
     private TextView angleText;
     private TextView utilityText;
+    private TextView queueTextData;
     private Button startButton;
 
 
@@ -57,6 +61,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
         //initialize values
+        walkBuffer = 0;
         direction = 0;
         walking = false;
         walkingY = false;
@@ -69,6 +74,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         angleText = (TextView)findViewById(R.id.angle);
         utilityText = (TextView)findViewById(R.id.utility);
         startButton = (Button)findViewById(R.id.startButton);
+        queueTextData = (TextView)findViewById(R.id.queue_data);
         queue = new LinkedList();
 
         timerTask = new TimerTask();
@@ -156,21 +162,42 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         return level;
     }
 
+    private float findAverageSpeed(Queue q) {
+        Iterator iter = q.iterator();
+        float total = 0;
+        for(int i = 0; i < q.size(); i++) {
+            total += (float)iter.next();
+        }
+        return total/q.size();
+    }
+
+    private float normalizeAxis(float x, float y, float z) {
+        return x * x + y * y + z * z;
+    }
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
             case Sensor.TYPE_ACCELEROMETER:
                 gravity = event.values;
                 float accelY = gravity[1];
-                if(queue.size() > 20) {
+//                float accelY = normalizeAxis(gravity[0], gravity[1], gravity[2]);
+                if(queue.size() > 30) {
                     queue.remove();
                     queue.add(accelY);
                 }
                 else {
                     queue.add(accelY);
                 }
-                utilityText.setText(queue.toString());
 
+                walkBuffer = findAverageSpeed(queue);
+
+                if(walkBuffer >= 1.0) {
+                    walkingY = true;
+                }
+                else walkingY = false;
+
+                utilityText.setText(String.valueOf(walkBuffer));
+                queueTextData.setText(queue.toString());
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 geoMagnetic = event.values;
@@ -188,7 +215,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                 azimuth = orientation[0];
                 azimuth = -azimuth*360/(2*3.14159265358979323f);
                 float outputAzimuth = azimuth;
-                if(azimuth < 0){
+                if (azimuth < 0) {
                     outputAzimuth = azimuth + 360;
                 }
                 String output = String.format("%.2f", outputAzimuth);
@@ -250,7 +277,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         //user has pressed the start button. they are walking around and ish
         private void startWalk(){
             long last = System.currentTimeMillis();
-            while (walking) {
+            while (walking && walkingY) {
                 long current = System.currentTimeMillis();
                 if(current-last>=1000){
                     WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);

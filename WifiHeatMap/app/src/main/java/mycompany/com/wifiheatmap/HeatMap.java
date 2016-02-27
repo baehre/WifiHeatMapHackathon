@@ -171,10 +171,6 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                 }
                 utilityText.setText(queue.toString());
 
-                //if(accelY > threshold){
-
-//                utilityText.setText("Y Accelerometer: " + accelY);
-                //}
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 geoMagnetic = event.values;
@@ -191,7 +187,11 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                 SensorManager.getOrientation(R, orientation);
                 azimuth = orientation[0];
                 azimuth = -azimuth*360/(2*3.14159265358979323f);
-                String output = String.format("%.2f", azimuth);
+                float outputAzimuth = azimuth;
+                if(azimuth < 0){
+                    outputAzimuth = azimuth + 360;
+                }
+                String output = String.format("%.2f", outputAzimuth);
                 angleText.setText("Angle(Degrees): " + output);
                 checkDirection();
             }

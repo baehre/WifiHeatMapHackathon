@@ -1,6 +1,7 @@
 package mycompany.com.wifiheatmap;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -33,12 +34,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
     protected void onPause()
     {
         super.onPause();
     }
 
-
+    @Override
     protected void onResume()
     {
         super.onResume();
@@ -63,9 +65,13 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-
-
+        if (id == R.id.heatMap)
+        {
+            Intent launchNewIntent =
+                    new Intent(MainActivity.this, HeatMap.class);
+            startActivityForResult(launchNewIntent, 0);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 }

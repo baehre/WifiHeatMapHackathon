@@ -9,23 +9,19 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 public class HeatMap extends AppCompatActivity implements SensorEventListener{
+
+    //from tartakynov
+    private ScalarKalmanFilter mFiltersCascade[] = new ScalarKalmanFilter[3];
 
     private SensorManager sensorManager;
     //grabbing compass azimuth
@@ -35,7 +31,6 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
     private float azimuth;
     protected boolean walking;
     protected boolean walkingY;
-    private int threshold;
     protected Queue queue;
 
     //x and y coordinate of person
@@ -43,6 +38,7 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
     protected int y;
     private float walkBuffer;
     private int[][] matrix;
+    private int[][] finalMatrix;
 
 
     //like a clock north is 0. includes non cardinals (i.e. NE)
@@ -65,7 +61,6 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         direction = 0;
         walking = false;
         walkingY = false;
-        threshold = 8;
         //assume user starts in the middle;
         x = 49;
         y = 49;
@@ -76,6 +71,12 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         startButton = (Button)findViewById(R.id.startButton);
         queueTextData = (TextView)findViewById(R.id.queue_data);
         queue = new LinkedList();
+
+        //magic from tartakynov
+        mFiltersCascade[0] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+        mFiltersCascade[1] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+        mFiltersCascade[2] = new ScalarKalmanFilter(1, 1, 0.01f, 0.0025f);
+
 
         timerTask = new TimerTask();
 
@@ -92,11 +93,15 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
                     walking = false;
                     timerTask.cancel(true);
                     timerTask = new TimerTask();
+                    finalMatrix = matrix;
+                    matrix = new int[100][100];
+                    x = 49;
+                    y = 49;
                 }
             }
         });
-        //initListening();
     }
+
 
 
     //update the user in the matrix every second based on direction
@@ -171,32 +176,48 @@ public class HeatMap extends AppCompatActivity implements SensorEventListener{
         return total/q.size();
     }
 
-    private float normalizeAxis(float x, float y, float z) {
-        return x * x + y * y + z * z;
+
+    //from tartakynov
+    private float filter(float measurement){
+        float f1 = mFiltersCascade[0].correct(measurement);
+        float f2 = mFiltersCascade[1].correct(f1);
+        float f3 = mFiltersCascade[2].correct(f2);
+        return f3;
     }
+
+    private boolean checkQueue(){
+        Iterator iter = queue.iterator();
+        for(int i = 0; i < queue.size(); i++){
+            if((float)iter.next() > 1.0){
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
             case Sensor.TYPE_ACCELEROMETER:
                 gravity = event.values;
-                float accelY = gravity[1];
-//                float accelY = normalizeAxis(gravity[0], gravity[1], gravity[2]);
-                if(queue.size() > 30) {
+                float accelY = filter(gravity[1]);
+
+
+                if(queue.size() > 5) {
                     queue.remove();
                     queue.add(accelY);
                 }
                 else {
                     queue.add(accelY);
                 }
-
-                walkBuffer = findAverageSpeed(queue);
-
-                if(walkBuffer >= 1.0) {
+                boolean check = checkQueue();
+                if(check){
                     walkingY = true;
                 }
-                else walkingY = false;
-
-                utilityText.setText(String.valueOf(walkBuffer));
+                else{
+                    walkingY = false;
+                }
+                utilityText.setText("Walking: " + walkingY);
                 queueTextData.setText(queue.toString());
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:

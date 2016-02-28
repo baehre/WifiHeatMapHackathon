@@ -17,6 +17,7 @@ import android.widget.ImageView;
 public class HeatMap extends AppCompatActivity {
 
     private CanvasView canvas;
+    private int size;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +26,10 @@ public class HeatMap extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle bundle = getIntent().getExtras();
         int[][] colorMatrix = (int[][])bundle.getSerializable("MAIN_FINAL_MATRIX");
+        size = (int)bundle.getSerializable("SIZE");
         canvas = (CanvasView)findViewById(R.id.canvas);
         canvas.setMatrix(colorMatrix);
+        canvas.setSize(size);
         canvas.postInvalidate();
     }
 

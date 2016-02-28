@@ -46,4 +46,25 @@
         android:text="array data"
         android:id="@+id/queue_data"
         android:layout_gravity="center_horizontal"/>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton android:id="@+id/radio_25"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="25"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/radio_50"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="50"
+            android:onClick="onRadioButtonClicked"/>
+        <RadioButton android:id="@+id/radio_100"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100"
+            android:onClick="onRadioButtonClicked"/>
+    </RadioGroup>
 </LinearLayout>

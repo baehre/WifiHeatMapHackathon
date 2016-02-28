@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //grabbing compass azimuth
     private float[] gravity;
     private float[] geoMagnetic;
+    private float[] linearGravity;
 
     private float azimuth;
     protected boolean walking;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float walkBuffer;
     protected int[][] matrix;
     private int[][] finalMatrix;
-
+    private int size;
 
     //like a clock north is 0. includes non cardinals (i.e. NE)
     private int direction;
@@ -66,12 +67,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         direction = 0;
         walking = false;
         walkingY = true;
+        size = 100;
         //assume user starts in the middle;
-        x = 49;
-        y = 49;
+        x = (size-1)/2;
+        y = (size-1)/2;
 
-        matrix = new int[100][100];
-        finalMatrix = new int[100][100];
+        matrix = new int[size][size];
+        finalMatrix = new int[size][size];
 
         angleText = (TextView)findViewById(R.id.angle);
         utilityText = (TextView)findViewById(R.id.utility);
@@ -102,20 +104,51 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     walking = false;
                     timerTask.cancel(true);
                     timerTask = new TimerTask();
-                    for(int i = 0; i < 100; i++){
-                        for(int j = 0; j < 100; j++){
+                    for(int i = 0; i < size; i++){
+                        for(int j = 0; j < size; j++){
                             finalMatrix[i][j] = wifiStrengthColor(matrix[i][j]);
                         }
                     }
-                    matrix = new int[100][100];
-                    x = 49;
-                    y = 49;
+                    matrix = new int[size][size];
+                    x = (size-1)/2;
+                    y = (size-1)/2;
                 }
             }
         });
     }
 
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
 
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.radio_25:
+                if (checked)
+                    size = 25;
+                    finalMatrix = new int[size][size];
+                    matrix = new int[size][size];
+                    x = (size-1)/2;
+                    y = (size-1)/2;
+                    break;
+            case R.id.radio_50:
+                if (checked)
+                    size = 50;
+                    finalMatrix = new int[size][size];
+                    matrix = new int[size][size];
+                    x = (size-1)/2;
+                    y = (size-1)/2;
+                    break;
+            case R.id.radio_100:
+                if (checked)
+                    size = 100;
+                    finalMatrix = new int[size][size];
+                    matrix = new int[size][size];
+                    x = (size-1)/2;
+                    y = (size-1)/2;
+                    break;
+        }
+    }
 
     private int wifiStrengthColor(int p) {
         if(p <= -100) {
@@ -185,10 +218,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             x=x+1;
             y=y-1;
         }
-        if(x<0 || x>99){
+        if(x<0 || x>size-1){
             x = prevX;
         }
-        if(y<0 || y>99){
+        if(y<0 || y>size-1){
             y = prevY;
         }
     }
@@ -202,6 +235,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(
                 this,
                 sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(
+                this,
+                sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -227,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean checkQueue(){
         Iterator iter = queue.iterator();
         for(int i = 0; i < queue.size(); i++){
-            if((float)iter.next() > 1.0){
+            if((float)iter.next() > 2.0){
                 return true;
             }
         }
@@ -237,12 +274,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         switch(event.sensor.getType()){
-            case Sensor.TYPE_ACCELEROMETER:
-                gravity = event.values;
-                float accelY = filter(gravity[1]);
+            case Sensor.TYPE_LINEAR_ACCELERATION:
+                linearGravity = event.values;
+                float accelY = filter((float)Math.sqrt(linearGravity[0] * linearGravity[0] + linearGravity[1] * linearGravity[1] + linearGravity[2] * linearGravity[2]));
 
-
-                if(queue.size() > 5) {
+                if(queue.size() > 3) {
                     queue.remove();
                     queue.add(accelY);
                 }
@@ -261,6 +297,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 geoMagnetic = event.values;
+                break;
+            case Sensor.TYPE_ACCELEROMETER:
+                gravity = event.values;
+                //utilityText.setText("LINEAR: " + Math.sqrt(linearGravity[0] * linearGravity[0] + linearGravity[1] * linearGravity[1] + linearGravity[2] * linearGravity[2]));
                 break;
         }
         if(geoMagnetic != null && gravity != null){
@@ -373,6 +413,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     new Intent(MainActivity.this, HeatMap.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("MAIN_FINAL_MATRIX", finalMatrix);
+            bundle.putSerializable("SIZE", size);
             launchNewIntent.putExtras(bundle);
             startActivity(launchNewIntent);
             return true;

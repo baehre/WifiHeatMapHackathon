@@ -24,6 +24,7 @@ public class CanvasView extends View {
     private float rectHeight;
     private Paint paint;
     private int[][] matrix;
+    private int size;
 
     public CanvasView(Context c, AttributeSet attrs){
         super(c, attrs);
@@ -34,8 +35,9 @@ public class CanvasView extends View {
         display.getSize(sizeA);
         int width = sizeA.x;
         int height = sizeA.y;
-        tempWidth = width/100.0;
-        tempHeight = height/100.0;
+        size = 100;
+        tempWidth = width/size;
+        tempHeight = height/size;
         rectWidth = (float)tempWidth;
         rectHeight = (float)tempHeight;
         paint = new Paint();
@@ -43,8 +45,8 @@ public class CanvasView extends View {
 
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
-        for(int x = 0; x < 100; x++){
-            for(int y = 0; y < 100; y++){
+        for(int x = 0; x < size; x++){
+            for(int y = 0; y < size; y++){
                 int color = matrix[x][y];
                 paint.setColor(color);
                 canvas.drawRect(x * rectWidth, y * rectHeight, (x * rectWidth) + rectWidth, (y * rectHeight) + rectHeight, paint);
@@ -55,5 +57,18 @@ public class CanvasView extends View {
     public void setMatrix(int[][] m){
         matrix = m;
     }
+    public void setSize(int s){
+        size = s;
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point sizeA = new Point();
+        display.getSize(sizeA);
+        int width = sizeA.x;
+        int height = sizeA.y;
+        tempWidth = width/size;
+        tempHeight = height/size;
+        rectWidth = (float)tempWidth;
+        rectHeight = (float)tempHeight;
 
+    }
 }

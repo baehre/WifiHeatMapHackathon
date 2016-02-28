@@ -30,10 +30,10 @@ public class CanvasView extends View {
         context = c;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
+        Point sizeA = new Point();
+        display.getSize(sizeA);
+        int width = sizeA.x;
+        int height = sizeA.y;
         tempWidth = width/100.0;
         tempHeight = height/100.0;
         rectWidth = (float)tempWidth;
@@ -46,9 +46,6 @@ public class CanvasView extends View {
         for(int x = 0; x < 100; x++){
             for(int y = 0; y < 100; y++){
                 int color = matrix[x][y];
-                if(color != 0) {
-                    System.out.println("COLOR: " + color);
-                }
                 paint.setColor(color);
                 canvas.drawRect(x * rectWidth, y * rectHeight, (x * rectWidth) + rectWidth, (y * rectHeight) + rectHeight, paint);
             }
@@ -58,4 +55,5 @@ public class CanvasView extends View {
     public void setMatrix(int[][] m){
         matrix = m;
     }
+
 }

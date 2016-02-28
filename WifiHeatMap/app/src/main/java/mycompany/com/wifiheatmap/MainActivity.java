@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.Iterator;
@@ -96,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else if (walking == true) {
                     stopListening();
                     startButton.setText("Start");
+                    queue.clear();
+                    queueTextData.setText("");
                     walking = false;
                     timerTask.cancel(true);
                     timerTask = new TimerTask();
@@ -112,9 +115,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+
+
     private int wifiStrengthColor(int p) {
         if(p <= -100) {
-            return ContextCompat.getColor(this, R.color.C16);
+            return ContextCompat.getColor(this, R.color.C0);
         }
         else if(p <= -80) {
             return ContextCompat.getColor(this, R.color.C15);

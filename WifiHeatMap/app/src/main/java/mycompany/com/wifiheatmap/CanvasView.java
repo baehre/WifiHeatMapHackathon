@@ -45,10 +45,10 @@ public class CanvasView extends View {
         super.onDraw(canvas);
         for(int x = 0; x < 100; x++){
             for(int y = 0; y < 100; y++){
-                if(matrix == null){
-                    return;
-                }
                 int color = matrix[x][y];
+                if(color != 0) {
+                    System.out.println("COLOR: " + color);
+                }
                 paint.setColor(color);
                 canvas.drawRect(x * rectWidth, y * rectHeight, (x * rectWidth) + rectWidth, (y * rectHeight) + rectHeight, paint);
             }

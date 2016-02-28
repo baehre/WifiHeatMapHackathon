@@ -23,12 +23,11 @@ public class HeatMap extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
         Intent intent = getIntent();
-        Bundle bundle = new Bundle();
+        Bundle bundle = getIntent().getExtras();
         int[][] colorMatrix = (int[][])bundle.getSerializable("MAIN_FINAL_MATRIX");
-        System.out.println(colorMatrix[0][0]);
         canvas = (CanvasView)findViewById(R.id.canvas);
         canvas.setMatrix(colorMatrix);
-        canvas.invalidate();
+        canvas.postInvalidate();
     }
 
     @Override

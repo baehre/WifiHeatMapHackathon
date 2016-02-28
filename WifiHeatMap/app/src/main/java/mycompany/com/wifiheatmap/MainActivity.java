@@ -10,6 +10,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected int x;
     protected int y;
     private float walkBuffer;
-    private int[][] matrix;
+    protected int[][] matrix;
     private int[][] finalMatrix;
 
 
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         walkBuffer = 0;
         direction = 0;
         walking = false;
-        walkingY = false;
+        walkingY = true;
         //assume user starts in the middle;
         x = 49;
         y = 49;
@@ -98,7 +99,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     walking = false;
                     timerTask.cancel(true);
                     timerTask = new TimerTask();
-                    finalMatrix[x][y] = wifiStrengthColor(matrix[x][y]);
+                    for(int i = 0; i < 100; i++){
+                        for(int j = 0; j < 100; j++){
+                            finalMatrix[i][j] = wifiStrengthColor(matrix[i][j]);
+                        }
+                    }
                     matrix = new int[100][100];
                     x = 49;
                     y = 49;
@@ -108,56 +113,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private int wifiStrengthColor(int p) {
-        if(p <= 0) {
-            return R.color.C0;
+        if(p <= -100) {
+            return ContextCompat.getColor(this, R.color.C0);
         }
-        else if(p <= 7) {
-            return R.color.C1;
+        else if(p <= -80) {
+            return ContextCompat.getColor(this, R.color.C1);
         }
-        else if (7 < p  && p <= 14) {
-            return R.color.C2;
+        else if (p <= -70) {
+            return ContextCompat.getColor(this, R.color.C3);
         }
-        else if (14 < p && p <= 21) {
-            return R.color.C3;
+        else if (p <= -67) {
+            return ContextCompat.getColor(this, R.color.C5);
         }
-        else if (21 < p && p <= 28) {
-            return R.color.C4;
+        else if (p <= -64) {
+            return ContextCompat.getColor(this, R.color.C6);
         }
-        else if (28 < p && p <= 35) {
-            return R.color.C5;
+        else if (p <= -61) {
+            return ContextCompat.getColor(this, R.color.C8);
         }
-        else if (35< p && p <= 42) {
-            return R.color.C6;
+        else if (p<=-58) {
+            return ContextCompat.getColor(this, R.color.C10);
         }
-        else if (42 < p && p <= 49) {
-            return R.color.C7;
+        else if (p<=-55) {
+            return ContextCompat.getColor(this, R.color.C12);
         }
-        else if (49 < p && p <= 56) {
-            return R.color.C8;
+        else if (p<=-52) {
+            return ContextCompat.getColor(this, R.color.C14);
         }
-        else if (56 < p && p <= 63) {
-            return R.color.C9;
-        }
-        else if (63 < p && p <= 70) {
-            return R.color.C10;
-        }
-        else if (70 < p && p <= 14) {
-            return R.color.C11;
-        }
-        else if (77 < p && p <= 14) {
-            return R.color.C12;
-        }
-        else if (84 < p && p <= 14) {
-            return R.color.C13;
-        }
-        else if (91 < p && p <= 14) {
-            return R.color.C14;
-        }
-        else if (96 < p && p <= 100) {
-            return R.color.C15;
+        else if (p<=-50) {
+            return ContextCompat.getColor(this, R.color.C15);
         }
         else {
-            return R.color.C0;
+            return ContextCompat.getColor(this, R.color.C0);
         }
     }
 
@@ -220,8 +207,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected int getWifiStrength(WifiManager wifiManager){
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         int rssi = wifiInfo.getRssi();
-        int level = wifiManager.calculateSignalLevel(rssi, 100);
-        return level;
+        return rssi;
     }
 
 
@@ -346,24 +332,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //user has pressed the start button. they are walking around and ish
         private void startWalk(){
             long last = System.currentTimeMillis();
-            while (walking && walkingY) {
-                long current = System.currentTimeMillis();
-                if(current-last>=1000){
-                    WifiManager wifi = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-                    wifiStrength = getWifiStrength(wifi);
-                    publishProgress();
-                    updateLocation();
-                    if(matrix[x][y] != 0){
-                        matrix[x][y] = wifiStrength;
+            while (walking) {
+                if(walkingY) {
+                    long current = System.currentTimeMillis();
+                    if (current - last >= 1000) {
+                        WifiManager wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                        wifiStrength = getWifiStrength(wifi);
+                        updateLocation();
+                        if (matrix[x][y] == 0) {
+                            matrix[x][y] = wifiStrength;
+                        }
+                        last = current;
                     }
-                    last = current;
                 }
             }
         }
 
-        protected void onProgressUpdate(Void... blah){
-            //utilityText.setText("Level: " + wifiStrength);
-        }
     }
 
     @Override

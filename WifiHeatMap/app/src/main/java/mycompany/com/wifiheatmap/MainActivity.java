@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private boolean checkQueue(){
         Iterator iter = queue.iterator();
         for(int i = 0; i < queue.size(); i++){
-            if((float)iter.next() > 2.0){
+            if((float)iter.next() > 1.5){
                 return true;
             }
         }

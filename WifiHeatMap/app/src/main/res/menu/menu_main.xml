@@ -7,4 +7,8 @@
         android:id="@+id/heatMap"
         android:title="Heat Map"
         android:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/mainActivity"
+        android:title="Main"
+        android:showAsAction="ifRoom"/>
 </menu>

@@ -3,4 +3,43 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <item name="C0" type="color">#FFFFFFFF</item>
+    <item name="C1" type="color">#FFFF0000</item>
+    <item name="C2" type="color">#FFFF4000</item>
+    <item name="C3" type="color">#FFFF9000</item>
+    <item name="C4" type="color">#FFFFD000</item>
+    <item name="C5" type="color">#FFFFFF00</item>
+
+    <item name="C6" type="color">#FFFFFF33</item>
+    <item name="C7" type="color">#FFCCFF33</item>
+    <item name="C8" type="color">#FF99FF33</item>
+    <item name="C9" type="color">#FF66FF33</item>
+    <item name="C10" type="color">#FF00FF00</item>
+
+    <item name="C11" type="color">#FF00F010</item>
+    <item name="C12" type="color">#FF00C040</item>
+    <item name="C13" type="color">#FF009070</item>
+    <item name="C14" type="color">#FF0050A0</item>
+    <item name="C15" type="color">#FF0000FF</item>
+
+    <integer-array name="wifi_colors">
+        <item>@color/C0</item>
+        <item>@color/C1</item>
+        <item>@color/C2</item>
+        <item>@color/C3</item>
+        <item>@color/C4</item>
+        <item>@color/C5</item>
+        <item>@color/C6</item>
+        <item>@color/C7</item>
+        <item>@color/C8</item>
+        <item>@color/C9</item>
+        <item>@color/C10</item>
+        <item>@color/C11</item>
+        <item>@color/C12</item>
+        <item>@color/C13</item>
+        <item>@color/C14</item>
+        <item>@color/C15</item>
+    </integer-array>
+
 </resources>

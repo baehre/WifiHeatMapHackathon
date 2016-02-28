@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -66,7 +67,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //assume user starts in the middle;
         x = 49;
         y = 49;
+
         matrix = new int[100][100];
+        finalMatrix = new int[100][100];
 
         angleText = (TextView)findViewById(R.id.angle);
         utilityText = (TextView)findViewById(R.id.utility);
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     walking = false;
                     timerTask.cancel(true);
                     timerTask = new TimerTask();
-                    finalMatrix = matrix;
+                    finalMatrix[x][y] = wifiStrengthColor(matrix[x][y]);
                     matrix = new int[100][100];
                     x = 49;
                     y = 49;
@@ -104,7 +107,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
-
+    private int wifiStrengthColor(int p) {
+        if(p <= 0) {
+            return R.color.C0;
+        }
+        else if(p <= 7) {
+            return R.color.C1;
+        }
+        else if (7 < p  && p <= 14) {
+            return R.color.C2;
+        }
+        else if (14 < p && p <= 21) {
+            return R.color.C3;
+        }
+        else if (21 < p && p <= 28) {
+            return R.color.C4;
+        }
+        else if (28 < p && p <= 35) {
+            return R.color.C5;
+        }
+        else if (35< p && p <= 42) {
+            return R.color.C6;
+        }
+        else if (42 < p && p <= 49) {
+            return R.color.C7;
+        }
+        else if (49 < p && p <= 56) {
+            return R.color.C8;
+        }
+        else if (56 < p && p <= 63) {
+            return R.color.C9;
+        }
+        else if (63 < p && p <= 70) {
+            return R.color.C10;
+        }
+        else if (70 < p && p <= 14) {
+            return R.color.C11;
+        }
+        else if (77 < p && p <= 14) {
+            return R.color.C12;
+        }
+        else if (84 < p && p <= 14) {
+            return R.color.C13;
+        }
+        else if (91 < p && p <= 14) {
+            return R.color.C14;
+        }
+        else if (96 < p && p <= 100) {
+            return R.color.C15;
+        }
+        else {
+            return R.color.C0;
+        }
+    }
 
     //update the user in the matrix every second based on direction
     private void updateLocation(){
@@ -312,6 +367,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -321,7 +382,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         {
             Intent launchNewIntent =
                     new Intent(MainActivity.this, HeatMap.class);
-            startActivityForResult(launchNewIntent, 0);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("MAIN_FINAL_MATRIX", finalMatrix);
+            launchNewIntent.putExtras(bundle);
+            startActivity(launchNewIntent);
             return true;
         }
         return super.onOptionsItemSelected(item);

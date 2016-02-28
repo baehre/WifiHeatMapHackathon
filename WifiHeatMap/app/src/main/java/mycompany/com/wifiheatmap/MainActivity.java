@@ -114,37 +114,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private int wifiStrengthColor(int p) {
         if(p <= -100) {
-            return ContextCompat.getColor(this, R.color.C0);
+            return ContextCompat.getColor(this, R.color.C16);
         }
         else if(p <= -80) {
-            return ContextCompat.getColor(this, R.color.C1);
+            return ContextCompat.getColor(this, R.color.C15);
         }
         else if (p <= -70) {
-            return ContextCompat.getColor(this, R.color.C3);
+            return ContextCompat.getColor(this, R.color.C14);
         }
         else if (p <= -67) {
-            return ContextCompat.getColor(this, R.color.C5);
+            return ContextCompat.getColor(this, R.color.C12);
         }
         else if (p <= -64) {
-            return ContextCompat.getColor(this, R.color.C6);
+            return ContextCompat.getColor(this, R.color.C10);
         }
         else if (p <= -61) {
             return ContextCompat.getColor(this, R.color.C8);
         }
         else if (p<=-58) {
-            return ContextCompat.getColor(this, R.color.C10);
+            return ContextCompat.getColor(this, R.color.C6);
         }
         else if (p<=-55) {
-            return ContextCompat.getColor(this, R.color.C12);
+            return ContextCompat.getColor(this, R.color.C5);
         }
         else if (p<=-52) {
-            return ContextCompat.getColor(this, R.color.C14);
+            return ContextCompat.getColor(this, R.color.C3);
         }
         else if (p<=-50) {
-            return ContextCompat.getColor(this, R.color.C15);
+            return ContextCompat.getColor(this, R.color.C1);
         }
         else {
-            return ContextCompat.getColor(this, R.color.C0);
+            return ContextCompat.getColor(this, R.color.C16);
         }
     }
 
@@ -156,28 +156,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             y = y-1;
         }
         else if(direction == 1){
-            x = x+1;
+            x = x-1;
             y = y-1;
         }
         else if(direction == 2){
-            x = x+1;
+            x = x-1;
         }
         else if(direction == 3){
-            x=x+1;
+            x=x-1;
             y=y+1;
         }
         else if(direction == 4){
             y=y+1;
         }
         else if(direction == 5){
-            x = x-1;
+            x = x+1;
             y=y+1;
         }
         else if(direction == 6){
-            x=x-1;
+            x=x+1;
         }
         else if(direction == 7){
-            x=x-1;
+            x=x+1;
             y=y-1;
         }
         if(x<0 || x>99){

@@ -22,6 +22,7 @@
     <item name="C13" type="color">#FF009070</item>
     <item name="C14" type="color">#FF0050A0</item>
     <item name="C15" type="color">#FF0000FF</item>
+    <item name="C16" type="color">#FF000000</item>
 
     <integer-array name="wifi_colors">
         <item>@color/C0</item>
@@ -40,6 +41,7 @@
         <item>@color/C13</item>
         <item>@color/C14</item>
         <item>@color/C15</item>
+        <item>@color/C16</item>
     </integer-array>
 
 </resources>
